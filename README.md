@@ -1,4 +1,4 @@
-# hibernate-isinitialized project
+# Set null relation when entity has more than one collection not working
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
