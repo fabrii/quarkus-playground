@@ -14,46 +14,34 @@ public class EntityResourceTest {
     private static final Logger LOGGER = Logger.getLogger(EntityResource.class.getName());
 
     @Test
-    public void test() {
-        given()
+    public void test1() {
+
+        given().contentType("application/json")
+                .when().post("/entity/1/")
+                .then()
+                .statusCode(200);
+
+        ParentWithTwoLists p = new ParentWithTwoLists();
+        p.setId(1L);
+        p.setName("asd");
+        p.setChild(null);
+
+        String response1 = given().contentType("application/json")
+                .body(p)
                 .when().put("/entity/1/")
                 .then()
-                .statusCode(204);
+                .statusCode(200)
+                .extract().body().asString();
+       
+        assertThat(response1).isEqualTo("true");
 
-        String containedInitialized = given()
-                .when().get("/entity/1/is-contained-initialized")
+        String response2 = given().contentType("application/json")
+                .when().get("/entity/1/")
                 .then()
                 .statusCode(200)
                 .extract().body().asString();
-        assertThat(containedInitialized).isEqualTo("false");
 
-    }
-
-    @Test
-    public void test2() {
-        given()
-                .when().put("/entity/2/")
-                .then()
-                .statusCode(204);
-
-        String containedInitializedAfterMerge = given()
-                .when().get("/entity/2/is-contained-initialized-after-merge")
-                .then()
-                .statusCode(200)
-                .extract().body().asString();
-        assertThat(containedInitializedAfterMerge).isEqualTo("false");
-    }
-
-    @Test
-    public void test3() {
-
-        String containedInitializedAfterMerge = given()
-                .when().get("/entity/1/lazy-exception")
-                .then()
-                .statusCode(200)
-                .extract().body().asString();
-        LOGGER.log(Level.SEVERE, "BODY: " +containedInitializedAfterMerge);
-
+        assertThat(response2).isEqualTo("true");
     }
 
 }

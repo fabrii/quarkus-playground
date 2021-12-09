@@ -47,11 +47,8 @@ public class ObjectMapperContextResolver implements ContextResolver<ObjectMapper
                 new LocalDateDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
 
-        SimpleModule module = new SimpleModule();
-        module.setSerializerModifier(new CustomLazySerializer());
 
         defaultMapper.registerModule(new Hibernate5Module().disable(Feature.USE_TRANSIENT_ANNOTATION))
-                //.registerModule(module)
                 .registerModule(javaTimeModule)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
