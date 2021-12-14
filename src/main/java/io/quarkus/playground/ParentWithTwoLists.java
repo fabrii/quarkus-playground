@@ -1,16 +1,17 @@
 package io.quarkus.playground;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.voodoodyne.jackson.jsog.JSOGGenerator;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import org.hibernate.envers.Audited;
 
 @Entity
 @JsonIdentityInfo(generator = JSOGGenerator.class)
+@Audited
 public class ParentWithTwoLists {
 
     @Id
@@ -22,12 +23,8 @@ public class ParentWithTwoLists {
     private SimpleChild child;
     
     @OneToMany(mappedBy = "parent")
-    @JsonIgnore
     private List<Contained1> contained;
 
-    @OneToMany(mappedBy = "parent")
-    @JsonIgnore
-    private List<Contained2> contained2;
 
 
     public Long getId() {
@@ -62,19 +59,6 @@ public class ParentWithTwoLists {
         this.contained = contained;
     }
 
-    public List<Contained2> getContained2() {
-        return contained2;
-    }
-
-    public void setContained2(List<Contained2> contained2) {
-        this.contained2 = contained2;
-    }
-
-
-    
-    
-    
-    
     
 
     

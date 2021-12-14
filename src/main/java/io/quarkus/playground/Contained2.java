@@ -5,9 +5,11 @@ import com.voodoodyne.jackson.jsog.JSOGGenerator;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import org.hibernate.envers.Audited;
 
 @Entity
 @JsonIdentityInfo(generator = JSOGGenerator.class)
+@Audited
 public class Contained2 {
 
     @Id

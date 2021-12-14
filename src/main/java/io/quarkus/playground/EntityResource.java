@@ -1,5 +1,7 @@
 package io.quarkus.playground;
 
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
@@ -9,11 +11,13 @@ import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.jboss.logmanager.Level;
+import org.hibernate.Hibernate;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.query.AuditEntity;
 
 @Path("/entity")
 public class EntityResource {
@@ -40,37 +44,15 @@ public class EntityResource {
         p.setChild(s);
 
         entityManager.persist(p);
+        
+        Contained1 c1 = new Contained1();
+        c1.setId(1L);
+        c1.setParent(p);
+        
+        entityManager.persist(c1);
 
-        ParentWithTwoLists pp = entityManager.find(ParentWithTwoLists.class, id);
-        LOGGER.log(Level.INFO, "PARENT CREATED WITH CHILD: " + pp.getChild());
 
         return p;
-
-    }
-
-    @PUT
-    @Path("/{id}/")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    public Boolean update(@PathParam long id, ParentWithTwoLists parent) {
-        parent.setChild(null);
-        parent.setName("asd");
-        parent = entityManager.merge(parent);
-        LOGGER.log(Level.INFO, "CHILD: " + parent.getChild());
-        // Child is null, as expected. But its not propagated to database.
-        /*
-        Hibernate: 
-            update
-                ParentWithTwoLists 
-            set
-                name=? 
-            where
-                id=?
-         */
-        
-        //Hibernate not doing set child = null.
-        return parent.getChild() == null;
 
     }
 
@@ -79,10 +61,22 @@ public class EntityResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Boolean get(@PathParam long id) {
-        ParentWithTwoLists parent = entityManager.find(ParentWithTwoLists.class, id);
-        LOGGER.log(Level.INFO, "CHILD: " + parent.getChild()); //  Child not null ¿?
-        return parent.getChild() == null;
+    public Boolean getRevision(@PathParam long id) {
+
+        AuditReader reader = AuditReaderFactory.get(entityManager);
+        List<ParentWithTwoLists> respuesta = reader.createQuery().forEntitiesAtRevision(ParentWithTwoLists.class, 1L)
+                .add(AuditEntity.id().eq(id))
+                .getResultList();
+        if (respuesta != null && respuesta.size() > 0) {
+            ParentWithTwoLists ret = respuesta.get(0);
+            
+            LOGGER.log(Level.INFO, "IS INITIALIZED CHILD: " + Hibernate.isInitialized(ret.getChild())); //I thought *ToOne associations were also Lazy with envers. That changed?
+            LOGGER.log(Level.INFO, "IS INITIALIZED CONTAINED: " + Hibernate.isInitialized(ret.getContained())); //Collections should be lazy.
+           
+            return Hibernate.isInitialized(ret.getContained());
+        }
+        return null;
 
     }
+    
 }
