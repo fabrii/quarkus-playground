@@ -35,8 +35,6 @@ public class RequestFilter implements ContainerRequestFilter {
         String path = requestContext.getUriInfo().getPath();
         String queryParams = requestContext.getUriInfo().getRequestUri().getQuery();
         
-        if (path.contains("is-initia"))
-
         Span span = Span.current();
 
         LOGGER.log(Level.SEVERE, "SPAN CONTEXT " + span.getSpanContext().getSpanId());

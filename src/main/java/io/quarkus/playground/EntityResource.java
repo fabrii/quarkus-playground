@@ -22,7 +22,7 @@ public class EntityResource {
 
     @PersistenceContext
     EntityManager entityManager;
-    
+
     @Inject
     RestClient client;
 
@@ -46,7 +46,12 @@ public class EntityResource {
         }
 
         entityManager.persist(containing);
-        
+
+//        Baggage.current()
+//                .toBuilder()
+//                .put("system", "systemX")
+//                .build()
+//                .makeCurrent();
         //Propagation working
         client.isContainedInitialized(id);
     }
@@ -58,5 +63,4 @@ public class EntityResource {
         return true;
     }
 
-   
 }

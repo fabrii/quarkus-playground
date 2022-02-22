@@ -1,6 +1,7 @@
 package io.quarkus.playground;
 
 import java.io.Serializable;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
@@ -23,6 +24,14 @@ public class RestClient implements Serializable {
 
     public boolean isContainedInitialized(long id) {
         return proxy.isContainedInitialized(id);
+    }
+    
+    @PreDestroy
+    public void predestroy(){
+        try {
+            proxy.close();
+        } catch (Exception ex){}
+        
     }
 
 }
